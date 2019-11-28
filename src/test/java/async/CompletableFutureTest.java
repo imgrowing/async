@@ -3,10 +3,7 @@ package async;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -61,5 +58,33 @@ public class CompletableFutureTest {
         00:31:50.711 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureEx - supplyAsync()...
         00:31:50.713 [main] INFO async.CompletableFutureEx - result: supplyAsync()...
          */
+    }
+
+    @Test
+    public void thenAccept() throws ExecutionException, InterruptedException {
+        Runnable runnable = () -> log.info("runAsync()");
+        Consumer<Void> voidConsumer = (v) -> log.info("result: " + v);
+        CompletableFuture.runAsync(runnable).thenAccept(voidConsumer);
+
+        Supplier<String> supplier = () -> {
+            log.info("supplyAsync()");
+            return "test";
+        };
+        Consumer<String> stringConsumer = (s) -> log.info("result: " + s);
+        CompletableFuture.supplyAsync(supplier).thenAccept(stringConsumer);
+
+        Thread.sleep(200);
+
+        /*
+        runAsync(runnable)과 supplyAsync(supplier)는 CompletableFuture 인스턴스를 반환한다.
+        completableFuture.thenAccept(Consumer<T>)는 CompletableFuture의 completion 결과를 파라미터로 consumer에게 전달한다.
+        thenAccept(consumer)는 completableFuture에 consumer라는 callback을 등록하는 것과 같다.
+
+        [Result]
+        01:11:00.613 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - supplyAsync()
+        01:11:00.613 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - runAsync()
+        01:11:00.616 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - result: test
+        01:11:00.616 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - result: null
+        */
     }
 }
