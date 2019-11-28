@@ -1,5 +1,6 @@
 .project
 *.prefs
+*.class
 .classpath
 .springBeans
 .settings
