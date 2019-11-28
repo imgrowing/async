@@ -79,6 +79,7 @@ public class CompletableFutureTest {
         runAsync(runnable)과 supplyAsync(supplier)는 CompletableFuture 인스턴스를 반환한다.
         completableFuture.thenAccept(Consumer<T>)는 CompletableFuture의 completion 결과를 파라미터로 consumer에게 전달한다.
         thenAccept(consumer)는 completableFuture에 consumer라는 callback을 등록하는 것과 같다.
+        위의 두 async 호출은 코드 순서대로 실행되는 것이 보장되지 않는다.
 
         [Result]
         01:11:00.613 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - supplyAsync()
