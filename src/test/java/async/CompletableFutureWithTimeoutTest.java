@@ -46,11 +46,11 @@ public class CompletableFutureWithTimeoutTest {
                 .supplyAsync(() -> this.sendMessage(message, 300))           // delay를 변경해서 실행 (선/후)
                 .acceptEither(
                         timeoutAfter(100, TimeUnit.MILLISECONDS),          // delay를 변경해서 실행 (선/후)
-                        // supplyAsync()가 정상적으로 완료된 경우에만 실행됨
+                        // supplyAsync()가 timeout 보다 먼저 정상적으로 완료된 경우에만 실행됨
                         result -> log.info("acceptEither() - result: " + result)
                 )
                 .exceptionally(exception -> {
-                    // supplyAsync()가 비정상적으로 완료되었거나, acceptEither() 내의 another CF가 비정상적으로 완료되었을 때 실행됨
+                    // supplyAsync()가 비정상적으로 완료되었거나, acceptEither() 내의 timeoutAfter CF 가 비정상적으로 완료되었을 때 실행됨
                     log.info(">>> Error Occurred : " + exception.getMessage());
                     return null;
                 });
