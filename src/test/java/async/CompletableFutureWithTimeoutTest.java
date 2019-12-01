@@ -20,7 +20,7 @@ public class CompletableFutureWithTimeoutTest {
     }
 
     public <T> CompletableFuture<T> timeoutFuture(long timeout, TimeUnit unit) {
-        CompletableFuture<T> result = new CompletableFuture<T>();
+        CompletableFuture<T> result = new CompletableFuture<>();
         getDelayer().schedule(
                 () -> result.completeExceptionally(new TimeoutException()), // timeout 후에 "exception 발생함"으로 완료시킴
                 timeout, unit
