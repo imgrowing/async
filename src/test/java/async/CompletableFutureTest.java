@@ -35,6 +35,13 @@ public class CompletableFutureTest {
     Consumer<String> STRING_CONSUMER = input -> log.info("consumer accepted (input) : " + input);
     Consumer<Void> VOID_CONSUMER = aVoid -> log.info("consumer accepted (input) : " + aVoid);
 
+    private void delayMillis(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+        }
+    }
+
     @Test
     public void sample() throws ExecutionException, InterruptedException {
         CompletableFuture<String> completableFuture = new CompletableFuture<>();
@@ -59,6 +66,7 @@ public class CompletableFutureTest {
                 .runAsync(RUNNABLE) // -> CompletableFuture<Void>
                 .get();
         /*
+        어떤 작업을 비동기 백그라운드로 실행해야 하고, 반환값이 필요 없으면 CompletableFuture.runAsync(Runnable): CompletableFuture<Void> 를 사용한다.
         runAsync(Runnable)은 파라미터가 Runnable 이므로 반환값이 없다(Void).
         ForkJoinPool.commonPool() 을 사용한다.
 
@@ -74,7 +82,8 @@ public class CompletableFutureTest {
                 .get();
         log.info("result: " + result);
         /*
-        supplyAsync(Supplier<U>)는 파라미터가 Supplier<U> 이므로 반환값은 <U>이다.
+        어떤 작업을 비동기 백그라운드로 실행해야 하고, 반환값이 필요하면 CompletableFuture.supplyAsync(Supplier<T>): CompletableFuture<T> 를 사용한다.
+        supplyAsync(Supplier<T>)는 파라미터가 Supplier<T> 이므로 get()의 반환값은 <T>이다.
         ForkJoinPool.commonPool() 을 사용한다.
 
         [Result]
@@ -159,7 +168,7 @@ public class CompletableFutureTest {
                 .thenAccept(STRING_CONSUMER)    // -> CompletableFuture<Void>
                 .get();
         /*
-        CompletableFuture와 또 다른 CompletableFuture를 연속해서(이어서) 실행해야 하는 경우에는
+        CompletableFuture와 또 다른 CompletableFuture를 연속해서(chaining) 실행해야 하는 경우에는
         thenAccept(consumer) or thenSupplier(supplier) or thenApply(function) 대신
         thenCompose(Function<I, ? extends CompletableFuture<O>>)를 사용하면 된다.
 
@@ -202,5 +211,42 @@ public class CompletableFutureTest {
         13:58:03.949 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - BiFunction(test,  !!!) -> test !!!  <- worker1
         13:58:03.949 [main] INFO async.CompletableFutureTest - result: test !!!
          */
+    }
+
+    @Test
+    public void thenCombine2() throws ExecutionException, InterruptedException {
+        Double usd = CompletableFuture
+                .supplyAsync(() -> findBestKrwPrice("Kimpo - Pusan"))
+                .thenCombine(
+                        CompletableFuture.supplyAsync(() -> exchangeRateFor("USD")),
+                        this::convertUsdPrice
+                )
+                .get();
+        log.info("Kimpo -> Pusan : $" + usd);
+
+        /*
+        [Result]
+        12:34:15.416 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - exchangeRateFor - USD
+        12:34:15.434 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - findBestKrwPrice - Kimpo - Pusan
+        12:34:15.437 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - convertUsdPrice - 120000.0, 8.333333333333334E-4
+        12:34:15.437 [main] INFO async.CompletableFutureTest - Kimpo -> Pusan : $100.0
+         */
+    }
+
+    private Double exchangeRateFor(String targetCurrency) {
+        delayMillis(30);
+        log.info("exchangeRateFor - " + targetCurrency);
+        return (double)1 / (double)1200;
+    }
+
+    private Double findBestKrwPrice(String fromTo) {
+        delayMillis(50);
+        log.info("findBestKrwPrice - " + fromTo);
+        return 12_0000D;
+    }
+
+    private Double convertUsdPrice(Double krwPrice, Double exchangeRate) {
+        log.info("convertUsdPrice - " + krwPrice + ", " + exchangeRate);
+        return krwPrice * exchangeRate;
     }
 }
