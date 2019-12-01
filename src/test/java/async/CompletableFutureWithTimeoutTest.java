@@ -19,13 +19,10 @@ public class CompletableFutureWithTimeoutTest {
         }
     }
 
-    public <T> CompletableFuture<T> timeoutAfter(long timeout, TimeUnit unit) {
+    public <T> CompletableFuture<T> timeoutFuture(long timeout, TimeUnit unit) {
         CompletableFuture<T> result = new CompletableFuture<T>();
         getDelayer().schedule(
-                () -> {
-                    log.info("completeExceptionally : TimeoutException");
-                    result.completeExceptionally(new TimeoutException());
-                },
+                () -> result.completeExceptionally(new TimeoutException()), // timeout 후에 "exception 발생함"으로 완료시킴
                 timeout, unit
         );
         return result;
@@ -43,16 +40,20 @@ public class CompletableFutureWithTimeoutTest {
 
         // TODO 처리해야 할 작업이 동시에 많이 발생한다면, 해당 작업을 위한 전용 ExectorService를 supplyAsync에 파라미터로 전달하도록 하자
         CompletableFuture
-                .supplyAsync(() -> this.sendMessage(message, 300))           // delay를 변경해서 실행 (선/후)
+                .supplyAsync(() -> this.sendMessage(message, 300))  // delay를 변경해서 실행 (선/후)
                 .acceptEither(
-                        timeoutAfter(100, TimeUnit.MILLISECONDS),          // delay를 변경해서 실행 (선/후)
+                        timeoutFuture(100, TimeUnit.MILLISECONDS), // delay를 변경해서 실행 (선/후)
                         // supplyAsync()가 timeout 보다 먼저 정상적으로 완료된 경우에만 실행됨
-                        result -> log.info("acceptEither() - result: " + result)
+                        result -> log.info(">>> supplyAsync() completed normally. result: " + result)
                 )
-                .exceptionally(exception -> {
-                    // supplyAsync()가 비정상적으로 완료되었거나, acceptEither() 내의 timeoutAfter CF 가 비정상적으로 완료되었을 때 실행됨
-                    log.info(">>> Error Occurred : " + exception.getMessage());
-                    return null;
+                .handleAsync((result, exception) -> {
+                    if (exception == null) {
+                        log.info(">>> 정상 처리됨 - result: " + result);
+                    } else {
+                        // supplyAsync()가 비정상적으로 완료되었거나, acceptEither() 내의 timeoutAfter CF 가 비정상적으로 완료되었을 때 실행됨
+                        log.info(">>> completed with Exception : " + exception.getMessage());
+                    }
+                    return result;
                 });
 
         delayMillis(1000);
@@ -62,14 +63,14 @@ public class CompletableFutureWithTimeoutTest {
         - acceptEither 내부의 consumer function 실행 : Y
         - exceptionally(Throwable) 실행 : N
         13:59:59.314 [ForkJoinPool.commonPool-worker-1] INFO - sendMessage - test message
-        13:59:59.314 [ForkJoinPool.commonPool-worker-1] INFO - acceptEither() - result: test message  <<<<<<<<<
+        13:59:59.314 [ForkJoinPool.commonPool-worker-1] INFO - >>> supplyAsync() completed normally. result: test message
         13:59:59.513                  [pool-1-thread-1] INFO - completeExceptionally : TimeoutException
 
         [Result - 정상 처리가 timeout 안에 끝나지 못한 경우 (Timeout이 먼저 발생)] - message delay: 300, timeout: 100
         - acceptEither 내부의 consumer function 실행 : N
         - exceptionally(Throwable) 실행 : Y
         14:01:46.683                  [pool-1-thread-1] INFO - completeExceptionally : TimeoutException
-        14:01:46.683                  [pool-1-thread-1] INFO - >>> Error Occurred : java.util.concurrent.TimeoutException
+        14:01:46.683                  [pool-1-thread-1] INFO - >>> completed with Exception : java.util.concurrent.TimeoutException
         14:01:46.880 [ForkJoinPool.commonPool-worker-1] INFO - sendMessage - test message
          */
     }
