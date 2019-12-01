@@ -71,7 +71,7 @@ public class CompletableFutureTest {
         ForkJoinPool.commonPool() 을 사용한다.
 
         [결과]
-        00:09:27.623 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - runnable ran
+        00:09:27.623 [ForkJoinPool.commonPool-worker-1] INFO - runnable ran
          */
     }
 
@@ -87,8 +87,8 @@ public class CompletableFutureTest {
         ForkJoinPool.commonPool() 을 사용한다.
 
         [Result]
-        00:10:08.205 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        00:10:08.207 [main] INFO async.CompletableFutureTest - result: test
+        00:10:08.205 [ForkJoinPool.commonPool-worker-1] INFO - supplier supplied (output) : test
+        00:10:08.207 [main] INFO - result: test
          */
     }
 
@@ -111,10 +111,10 @@ public class CompletableFutureTest {
         위의 두 ...Async() 호출은 코드 순서대로 실행되는 것이 보장되지 않는다.
 
         [Result]
-        00:13:34.840 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        00:13:34.840 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - runnable ran
-        00:13:34.842 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - consumer accepted (input) : test
-        00:13:34.842 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - consumer accepted (input) : null
+        00:13:34.840 [ForkJoinPool.commonPool-worker-2] INFO - supplier supplied (output) : test
+        00:13:34.840 [ForkJoinPool.commonPool-worker-1] INFO - runnable ran
+        00:13:34.842 [ForkJoinPool.commonPool-worker-2] INFO - consumer accepted (input) : test
+        00:13:34.842 [ForkJoinPool.commonPool-worker-1] INFO - consumer accepted (input) : null
         */
     }
 
@@ -134,9 +134,9 @@ public class CompletableFutureTest {
         ForkJoinPool.commonPool() 스레드 상에서 모두 실행되었다.
 
         [Result]
-        00:14:47.303 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        00:14:47.306 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - consumer accepted (input) : test
-        00:14:47.306 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - consumer accepted (input) : null
+        00:14:47.303 [ForkJoinPool.commonPool-worker-1] INFO - supplier supplied (output) : test
+        00:14:47.306 [ForkJoinPool.commonPool-worker-1] INFO - consumer accepted (input) : test
+        00:14:47.306 [ForkJoinPool.commonPool-worker-1] INFO - consumer accepted (input) : null
          */
     }
 
@@ -152,9 +152,9 @@ public class CompletableFutureTest {
         thenApply(function<I, O>)를 호출해서 결과를 다음 단계의 .thenXxx()로 넘겨야 한다.
 
         [Result]
-        00:19:06.188 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        00:19:06.191 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - function applied (input / output) : test/test
-        00:19:06.191 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - consumer accepted (input) : test
+        00:19:06.188 [ForkJoinPool.commonPool-worker-1] INFO - supplier supplied (output) : test
+        00:19:06.191 [ForkJoinPool.commonPool-worker-1] INFO - function applied (input / output) : test/test
+        00:19:06.191 [ForkJoinPool.commonPool-worker-1] INFO - consumer accepted (input) : test
          */
     }
 
@@ -173,8 +173,8 @@ public class CompletableFutureTest {
         thenCompose(Function<I, ? extends CompletableFuture<O>>)를 사용하면 된다.
 
         [Result]
-        12:56:18.744 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        12:56:18.747 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - consumer accepted (input) : test !!!
+        12:56:18.744 [ForkJoinPool.commonPool-worker-1] INFO - supplier supplied (output) : test
+        12:56:18.747 [ForkJoinPool.commonPool-worker-1] INFO - consumer accepted (input) : test !!!
          */
     }
 
@@ -201,15 +201,15 @@ public class CompletableFutureTest {
         BiFunction은 cf가 실행된 스레드 혹은 anotherCf가 실행된 스레드에서 실행된다.
 
         [Result]
-        13:57:07.568 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - another supplier supplied (output) :  !!!
-        13:57:07.568 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        13:57:07.571 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - BiFunction(test,  !!!) -> test !!! <- worker2
-        13:57:07.571 [main] INFO async.CompletableFutureTest - result: test !!!
+        13:57:07.568 [ForkJoinPool.commonPool-worker-2] INFO - another supplier supplied (output) :  !!!
+        13:57:07.568 [ForkJoinPool.commonPool-worker-1] INFO - supplier supplied (output) : test
+        13:57:07.571 [ForkJoinPool.commonPool-worker-2] INFO - BiFunction(test,  !!!) -> test !!! <- worker2
+        13:57:07.571 [main] INFO - result: test !!!
 
-        13:58:03.947 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - another supplier supplied (output) :  !!!
-        13:58:03.947 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - supplier supplied (output) : test
-        13:58:03.949 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - BiFunction(test,  !!!) -> test !!!  <- worker1
-        13:58:03.949 [main] INFO async.CompletableFutureTest - result: test !!!
+        13:58:03.947 [ForkJoinPool.commonPool-worker-2] INFO - another supplier supplied (output) :  !!!
+        13:58:03.947 [ForkJoinPool.commonPool-worker-1] INFO - supplier supplied (output) : test
+        13:58:03.949 [ForkJoinPool.commonPool-worker-1] INFO - BiFunction(test,  !!!) -> test !!!  <- worker1
+        13:58:03.949 [main] INFO - result: test !!!
          */
     }
 
@@ -226,10 +226,10 @@ public class CompletableFutureTest {
 
         /*
         [Result]
-        12:34:15.416 [ForkJoinPool.commonPool-worker-2] INFO async.CompletableFutureTest - exchangeRateFor - USD
-        12:34:15.434 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - findBestKrwPrice - Kimpo - Pusan
-        12:34:15.437 [ForkJoinPool.commonPool-worker-1] INFO async.CompletableFutureTest - convertUsdPrice - 120000.0, 8.333333333333334E-4
-        12:34:15.437 [main] INFO async.CompletableFutureTest - Kimpo -> Pusan : $100.0
+        12:34:15.416 [ForkJoinPool.commonPool-worker-2] INFO - exchangeRateFor - USD
+        12:34:15.434 [ForkJoinPool.commonPool-worker-1] INFO - findBestKrwPrice - Kimpo - Pusan
+        12:34:15.437 [ForkJoinPool.commonPool-worker-1] INFO - convertUsdPrice - 120000.0, 8.333333333333334E-4
+        12:34:15.437 [main] INFO - Kimpo -> Pusan : $100.0
          */
     }
 
